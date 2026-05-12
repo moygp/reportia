@@ -16,6 +16,18 @@ export default function SignupPage() {
         <form className="mt-8 space-y-6" action={signup}>
           <div className="space-y-4">
             <div>
+              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+                Nombre completo
+              </label>
+              <input
+                id="fullName"
+                name="fullName"
+                type="text"
+                required
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email
               </label>
