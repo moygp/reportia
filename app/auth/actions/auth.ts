@@ -24,50 +24,24 @@ export async function login(formData: FormData) {
 
 export async function signup(formData: FormData) {
   const supabase = await createClient()
-
+  
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const fullName = formData.get('fullName') as string
 
-  // 1. Create auth user
+  // Create auth user with metadata (trigger will create org + profile automatically)
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
     password,
+    options: {
+      data: {
+        full_name: fullName,
+      },
+    },
   })
 
-  if (authError) {
-    return { error: authError.message }
-  }
-
-  if (!authData.user) {
-    return { error: 'Failed to create user' }
-  }
-
-  // 2. Create organization
-  const { data: orgData, error: orgError } = await supabase
-    .from('organizations')
-    .insert({
-      name: `${fullName}'s Company`,
-      industry: 'services',
-      plan: 'free',
-    })
-    .select()
-    .single()
-
-  if (orgError) {
-    return { error: 'Failed to create organization' }
-  }
-
-  // 3. Create profile and link to organization
-  const { error: profileError } = await supabase.from('profiles').insert({
-    id: authData.user.id,
-    full_name: fullName,
-    role: 'owner',
-    organization_id: orgData.id,
-  })
-
-  if (profileError) {
-    return { error: 'Failed to create profile' }
+  if (authError || !authData.user) {
+    return { error: authError?.message || 'Failed to create user' }
   }
 
   revalidatePath('/', 'layout')
@@ -77,6 +51,5 @@ export async function signup(formData: FormData) {
 export async function logout() {
   const supabase = await createClient()
   await supabase.auth.signOut()
-  revalidatePath('/', 'layout')
   redirect('/login')
 }
