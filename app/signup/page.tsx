@@ -1,7 +1,13 @@
 import Link from 'next/link'
 import { signup } from '../auth/actions/auth'
 
-export default function SignupPage() {
+export default async function SignupPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>
+}) {
+  const { error } = await searchParams
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
@@ -13,6 +19,11 @@ export default function SignupPage() {
             Crea tu cuenta
           </p>
         </div>
+        {error && (
+          <div className="rounded-md bg-red-50 border border-red-200 p-3">
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
         <form className="mt-8 space-y-6" action={signup}>
           <div className="space-y-4">
             <div>

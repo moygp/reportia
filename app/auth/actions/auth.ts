@@ -15,7 +15,7 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword(data)
 
   if (error) {
-    return { error: error.message }
+    redirect(`/login?error=${encodeURIComponent(error.message)}`)
   }
 
   revalidatePath('/', 'layout')
@@ -24,7 +24,7 @@ export async function login(formData: FormData) {
 
 export async function signup(formData: FormData) {
   const supabase = await createClient()
-  
+
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const fullName = formData.get('fullName') as string
@@ -41,7 +41,8 @@ export async function signup(formData: FormData) {
   })
 
   if (authError || !authData.user) {
-    return { error: authError?.message || 'Failed to create user' }
+    const message = authError?.message || 'No se pudo crear el usuario'
+    redirect(`/signup?error=${encodeURIComponent(message)}`)
   }
 
   revalidatePath('/', 'layout')
