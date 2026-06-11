@@ -111,11 +111,22 @@ export function VisitForm({
         }
       }
 
-      const target = uploadErrorMsg
-        ? `/dashboard/visits/${result.visitId}?error=${encodeURIComponent(uploadErrorMsg)}`
-        : `/dashboard/visits/${result.visitId}`
-
-      router.push(target)
+      if (visit) {
+        if (uploadErrorMsg) {
+          router.push(
+            `/dashboard/visits/${result.visitId}?error=${encodeURIComponent(uploadErrorMsg)}`
+          )
+          router.refresh()
+          setSaving(false)
+        } else {
+          router.push('/dashboard/visits')
+        }
+      } else {
+        const target = uploadErrorMsg
+          ? `/dashboard/visits/${result.visitId}?error=${encodeURIComponent(uploadErrorMsg)}`
+          : `/dashboard/visits/${result.visitId}`
+        router.push(target)
+      }
     } catch (err) {
       if (isNextRedirect(err)) {
         throw err
@@ -272,7 +283,7 @@ export function VisitForm({
           href="/dashboard/visits"
           className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
         >
-          Cancelar
+          {visit ? 'Volver a visitas' : 'Cancelar'}
         </Link>
       </div>
     </form>

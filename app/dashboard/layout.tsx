@@ -42,50 +42,50 @@ export default async function DashboardLayout({
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center space-x-6">
+          <div className="flex items-center justify-between h-14">
+            <div className="flex items-center space-x-3 min-w-0">
               <Link href="/dashboard" className="text-xl font-bold text-gray-900">
                 Reportia
               </Link>
               {profile?.organization && (
-                <span className="hidden sm:inline text-sm text-gray-600">
+                <span className="hidden sm:inline text-sm text-gray-600 truncate">
                   {profile.organization.name}
                 </span>
               )}
-              <div className="flex items-center space-x-4">
-                <Link
-                  href="/dashboard"
-                  className="text-sm font-medium text-gray-700 hover:text-gray-900"
-                >
-                  Inicio
-                </Link>
-                <Link
-                  href="/dashboard/clients"
-                  className="text-sm font-medium text-gray-700 hover:text-gray-900"
-                >
-                  Clientes
-                </Link>
-                <Link
-                  href="/dashboard/visits"
-                  className="text-sm font-medium text-gray-700 hover:text-gray-900"
-                >
-                  Visitas
-                </Link>
-              </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 flex-shrink-0">
               <span className="hidden sm:inline text-sm text-gray-700">
                 {profile?.full_name || user.email}
               </span>
               <form action={logout}>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+                  className="text-sm font-medium text-gray-700 hover:text-gray-900 whitespace-nowrap"
                 >
                   Cerrar sesión
                 </button>
               </form>
             </div>
+          </div>
+          <div className="flex items-center space-x-5 h-11 border-t border-gray-100">
+            <Link
+              href="/dashboard"
+              className="text-sm font-medium text-gray-700 hover:text-gray-900"
+            >
+              Inicio
+            </Link>
+            <Link
+              href="/dashboard/clients"
+              className="text-sm font-medium text-gray-700 hover:text-gray-900"
+            >
+              Clientes
+            </Link>
+            <Link
+              href="/dashboard/visits"
+              className="text-sm font-medium text-gray-700 hover:text-gray-900"
+            >
+              Visitas
+            </Link>
           </div>
         </div>
       </nav>
