@@ -65,6 +65,12 @@ export default async function DashboardLayout({
                 >
                   Clientes
                 </Link>
+                <Link
+                  href="/dashboard/visits"
+                  className="text-sm font-medium text-gray-700 hover:text-gray-900"
+                >
+                  Visitas
+                </Link>
               </div>
             </div>
             <div className="flex items-center space-x-4">
