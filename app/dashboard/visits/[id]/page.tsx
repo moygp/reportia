@@ -131,10 +131,10 @@ export default async function VisitDetailPage({
 
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-1">
-          {clientName} · {formatDate(visit.visit_date)}
+          {clientName} {'\u00B7'} {formatDate(visit.visit_date)}
         </h2>
         <p className="text-sm text-gray-600 mb-6">
-          {visit.service_type} · {visit.technician_name}
+          {visit.service_type} {'\u00B7'} {visit.technician_name}
         </p>
 
         <VisitForm clients={clients} visit={visit} />
@@ -142,12 +142,12 @@ export default async function VisitDetailPage({
 
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-sm font-semibold text-gray-900 mb-4">
-          Evidencia fotográfica ({photosWithUrl.length})
+          Evidencia fotografica ({photosWithUrl.length})
         </h3>
 
         {photosWithUrl.length === 0 ? (
           <p className="text-sm text-gray-600">
-            Esta visita aún no tiene fotos. Agrégalas desde el formulario de arriba.
+            Esta visita aun no tiene fotos. Agregalas desde el formulario de arriba.
           </p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -219,7 +219,7 @@ export default async function VisitDetailPage({
       <div className="bg-white rounded-lg shadow p-6 border border-red-100">
         <h3 className="text-sm font-semibold text-gray-900 mb-1">Eliminar visita</h3>
         <p className="text-sm text-gray-600 mb-4">
-          Esta acción no se puede deshacer. Se eliminarán la visita, sus fotos y sus reportes.
+          Esta accion no se puede deshacer. Se eliminaran la visita, sus fotos y sus reportes.
         </p>
         <form action={deleteVisitRecord}>
           <input type="hidden" name="id" value={visit.id} />
