@@ -106,8 +106,8 @@ export async function generateVisitReport(visitId: string): Promise<GenerateRepo
       })
     )
     photoBytes = fetched
-      .filter((b): b is Uint8Array => b !== null)
-      .map((bytes) => ({ bytes }))
+      .filter((b) => b !== null)
+      .map((bytes) => ({ bytes: bytes as Uint8Array }))
   }
 
   const redacted = await redactVisitReport({
