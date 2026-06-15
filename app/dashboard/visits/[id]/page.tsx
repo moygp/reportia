@@ -129,14 +129,50 @@ export default async function VisitDetailPage({
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-1">
+      <div className="bg-white rounded-lg shadow px-6 py-4">
+        <h2 className="text-xl font-bold text-gray-900">
           {clientName} {'\u00B7'} {formatDate(visit.visit_date)}
         </h2>
-        <p className="text-sm text-gray-600 mb-6">
+        <p className="text-sm text-gray-600">
           {visit.service_type} {'\u00B7'} {visit.technician_name}
         </p>
+      </div>
 
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-sm font-semibold text-gray-900 mb-1">Reportes</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Genera el reporte profesional en PDF con los datos y la evidencia de esta visita.
+        </p>
+
+        <GenerateReportButton visitId={visit.id} hasReports={reportsWithUrl.length > 0} />
+
+        {reportsWithUrl.length > 0 && (
+          <div className="mt-4 divide-y divide-gray-100 border-t border-gray-100">
+            {reportsWithUrl.map((report) => (
+              <div key={report.id} className="py-2.5 flex items-center justify-between gap-3">
+                <span className="text-sm text-gray-700">
+                  Reporte del {formatDateTime(report.generated_at ?? report.created_at)}
+                </span>
+                {report.signedUrl ? (
+                  
+                    href={report.signedUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-blue-600 hover:text-blue-500 whitespace-nowrap"
+                  >
+                    Descargar PDF
+                  </a>
+                ) : (
+                  <span className="text-xs text-gray-400">No disponible</span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-sm font-semibold text-gray-900 mb-4">Datos de la visita</h3>
         <VisitForm clients={clients} visit={visit} />
       </div>
 
@@ -177,39 +213,6 @@ export default async function VisitDetailPage({
                     </button>
                   </form>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-sm font-semibold text-gray-900 mb-1">Reportes</h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Genera el reporte profesional en PDF con los datos y la evidencia de esta visita.
-        </p>
-
-        <GenerateReportButton visitId={visit.id} hasReports={reportsWithUrl.length > 0} />
-
-        {reportsWithUrl.length > 0 && (
-          <div className="mt-4 divide-y divide-gray-100 border-t border-gray-100">
-            {reportsWithUrl.map((report) => (
-              <div key={report.id} className="py-2.5 flex items-center justify-between gap-3">
-                <span className="text-sm text-gray-700">
-                  Reporte del {formatDateTime(report.generated_at ?? report.created_at)}
-                </span>
-                {report.signedUrl ? (
-                  <a
-                    href={report.signedUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-medium text-blue-600 hover:text-blue-500 whitespace-nowrap"
-                  >
-                    Descargar PDF
-                  </a>
-                ) : (
-                  <span className="text-xs text-gray-400">No disponible</span>
-                )}
               </div>
             ))}
           </div>
