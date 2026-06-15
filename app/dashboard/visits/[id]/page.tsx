@@ -154,7 +154,7 @@ export default async function VisitDetailPage({
                   Reporte del {formatDateTime(report.generated_at ?? report.created_at)}
                 </span>
                 {report.signedUrl ? (
-                  
+                  <a
                     href={report.signedUrl}
                     target="_blank"
                     rel="noopener noreferrer"
