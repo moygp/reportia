@@ -93,7 +93,7 @@ export async function generateVisitReport(visitId: string): Promise<GenerateRepo
       .from(PHOTOS_BUCKET)
       .createSignedUrls(photoPaths, 600)
 
-    const urls = (signed ?? []).map((s) => s.signedUrl).filter((u) => Boolean(u))
+    const urls = (signed ?? []).map((s) => s.signedUrl).filter((u): u is string => Boolean(u))
     const fetched = await Promise.all(
       urls.map(async (url) => {
         try {
