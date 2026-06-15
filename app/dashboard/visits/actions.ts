@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
 const PHOTOS_BUCKET = 'visit-photos'
+const REPORTS_BUCKET = 'visit-reports'
 
 async function getOrgContext() {
   const supabase = await createClient()
@@ -121,7 +122,6 @@ export async function registerVisitPhotos(
 
   const { supabase, organizationId } = await getOrgContext()
 
-  // Defensa adicional al RLS: solo rutas dentro de la carpeta de esta org y esta visita
   const safePaths = paths.filter((p) => p.startsWith(`${organizationId}/${visitId}/`))
 
   if (safePaths.length === 0) {
@@ -175,17 +175,25 @@ export async function deleteVisitRecord(formData: FormData) {
     redirect('/dashboard/visits')
   }
 
-  const { data: photos } = await supabase
-    .from('photos')
-    .select('storage_url')
-    .eq('visit_id', id)
+  const [{ data: photos }, { data: reports }] = await Promise.all([
+    supabase.from('photos').select('storage_url').eq('visit_id', id),
+    supabase.from('reports').select('pdf_url').eq('visit_id', id),
+  ])
 
-  const paths = (photos ?? [])
-    .map((p) => p.storage_url as string)
+  const photoPaths = ((photos ?? []) as { storage_url: string }[])
+    .map((p) => p.storage_url)
     .filter((p) => p.startsWith(`${organizationId}/`))
 
-  if (paths.length > 0) {
-    await supabase.storage.from(PHOTOS_BUCKET).remove(paths)
+  if (photoPaths.length > 0) {
+    await supabase.storage.from(PHOTOS_BUCKET).remove(photoPaths)
+  }
+
+  const reportPaths = ((reports ?? []) as { pdf_url: string }[])
+    .map((r) => r.pdf_url)
+    .filter((p) => p.startsWith(`${organizationId}/`))
+
+  if (reportPaths.length > 0) {
+    await supabase.storage.from(REPORTS_BUCKET).remove(reportPaths)
   }
 
   await supabase

@@ -2,15 +2,39 @@ import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { VisitForm } from '../visit-form'
 import { deleteVisitPhoto, deleteVisitRecord } from '../actions'
+import { GenerateReportButton } from '../../reports/generate-report-button'
 import type { ClientOption, Photo, PhotoWithUrl, Visit } from '../types'
 
+export const maxDuration = 60
+
 const PHOTOS_BUCKET = 'visit-photos'
+const REPORTS_BUCKET = 'visit-reports'
+
+type ReportRow = {
+  id: string
+  visit_id: string
+  pdf_url: string
+  generated_at: string | null
+  created_at: string
+}
+
+type ReportWithUrl = ReportRow & { signedUrl: string | null }
 
 function formatDate(value: string) {
   return new Date(`${value}T00:00:00`).toLocaleDateString('es-MX', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
+  })
+}
+
+function formatDateTime(value: string) {
+  return new Date(value).toLocaleString('es-MX', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   })
 }
 
@@ -42,17 +66,23 @@ export default async function VisitDetailPage({
 
   const visit = visitData as Visit
 
-  const [{ data: clientsData }, { data: photosData }] = await Promise.all([
+  const [{ data: clientsData }, { data: photosData }, { data: reportsData }] = await Promise.all([
     supabase.from('clients').select('id, name').order('name', { ascending: true }),
     supabase
       .from('photos')
       .select('*')
       .eq('visit_id', id)
       .order('uploaded_at', { ascending: true }),
+    supabase
+      .from('reports')
+      .select('*')
+      .eq('visit_id', id)
+      .order('created_at', { ascending: false }),
   ])
 
   const clients = (clientsData ?? []) as ClientOption[]
   const photos = (photosData ?? []) as Photo[]
+  const reports = (reportsData ?? []) as ReportRow[]
   const clientName = clients.find((c) => c.id === visit.client_id)?.name ?? 'Cliente'
 
   let photosWithUrl: PhotoWithUrl[] = photos.map((photo) => ({ ...photo, signedUrl: null }))
@@ -70,6 +100,24 @@ export default async function VisitDetailPage({
     photosWithUrl = photos.map((photo) => ({
       ...photo,
       signedUrl: signedByPath.get(photo.storage_url) ?? null,
+    }))
+  }
+
+  let reportsWithUrl: ReportWithUrl[] = reports.map((report) => ({ ...report, signedUrl: null }))
+
+  if (reports.length > 0) {
+    const reportPaths = reports.map((report) => report.pdf_url)
+    const { data: signedReports } = await supabase.storage
+      .from(REPORTS_BUCKET)
+      .createSignedUrls(reportPaths, 3600)
+
+    const signedByPath = new Map(
+      (signedReports ?? []).map((item) => [item.path ?? '', item.signedUrl])
+    )
+
+    reportsWithUrl = reports.map((report) => ({
+      ...report,
+      signedUrl: signedByPath.get(report.pdf_url) ?? null,
     }))
   }
 
@@ -129,6 +177,39 @@ export default async function VisitDetailPage({
                     </button>
                   </form>
                 </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-sm font-semibold text-gray-900 mb-1">Reportes</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Genera el reporte profesional en PDF con los datos y la evidencia de esta visita.
+        </p>
+
+        <GenerateReportButton visitId={visit.id} hasReports={reportsWithUrl.length > 0} />
+
+        {reportsWithUrl.length > 0 && (
+          <div className="mt-4 divide-y divide-gray-100 border-t border-gray-100">
+            {reportsWithUrl.map((report) => (
+              <div key={report.id} className="py-2.5 flex items-center justify-between gap-3">
+                <span className="text-sm text-gray-700">
+                  Reporte del {formatDateTime(report.generated_at ?? report.created_at)}
+                </span>
+                {report.signedUrl ? (
+                  
+                    href={report.signedUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-blue-600 hover:text-blue-500 whitespace-nowrap"
+                  >
+                    Descargar PDF
+                  </a>
+                ) : (
+                  <span className="text-xs text-gray-400">No disponible</span>
+                )}
               </div>
             ))}
           </div>
